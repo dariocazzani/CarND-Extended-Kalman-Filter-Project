@@ -5,6 +5,8 @@ using Eigen::VectorXd;
 using Eigen::MatrixXd;
 using std::vector;
 
+const float PI2 = 2 * M_PI;
+
 Tools::Tools() {}
 
 Tools::~Tools() {}
@@ -53,6 +55,9 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
     * Calculate a Jacobian here.
   */
   MatrixXd Hj(3,4);
+  Hj << 0,0,0,0,
+        0,0,0,0,
+        0,0,0,0;
 	//recover state parameters
 	float px = x_state(0);
 	float py = x_state(1);
@@ -64,25 +69,48 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 	float c3 = pow(c1, 3./2.);
 
 	//check division by zero
-	if(fabs(c1) < 0.0001)
-		cout<<"Division by Zero"<<endl;
-	else
-	{
+  if(fabs(c1) < 0.0001)
+  {
+    std::cout << "CalculateJacobian() has an error: Division by Zero" << std::endl;
+    return Hj;
+  }
 
-		float d_ro_px = px / c2;
-		float d_ro_py = py / c2;
-		float d_phi_px = - py / c1;
-		float d_phi_py = px / c1;
-		float d_roprime_px = py*(vx*py - vy*px) / c3;
-		float d_roprime_py = px*(vy*px - vx*py) / c3;
-		float d_roprime_vx = px / c2;
-		float d_roprime_vy = py / c2;
+	float d_ro_px = px / c2;
+	float d_ro_py = py / c2;
+	float d_phi_px = - py / c1;
+	float d_phi_py = px / c1;
+	float d_roprime_px = py*(vx*py - vy*px) / c3;
+	float d_roprime_py = px*(vy*px - vx*py) / c3;
+	float d_roprime_vx = px / c2;
+	float d_roprime_vy = py / c2;
 
-		//compute the Jacobian matrix
-		Hj << d_ro_px, d_ro_py, 0.,  0.,
-					d_phi_px, d_phi_py, 0., 0.,
-					d_roprime_px, d_roprime_py, d_roprime_vx, d_roprime_vy;
-	}
+	//compute the Jacobian matrix
+	Hj << d_ro_px, d_ro_py, 0.,  0.,
+				d_phi_px, d_phi_py, 0., 0.,
+				d_roprime_px, d_roprime_py, d_roprime_vx, d_roprime_vy;
 
 	return Hj;
+}
+
+VectorXd Tools::Convert2Polar(const VectorXd& x_state) {
+  float px = x_state(0);
+  float py = x_state(1);
+  float vx = x_state(2);
+  float vy = x_state(3);
+
+  float rho, phi, rho_dot;
+  rho = sqrt(px*px + py*py);
+  phi = atan2(py, px);  // returns values between -pi and pi
+
+  // avoid division by 0t
+  double epsilon = 0.000001;
+  if(rho < epsilon)
+    rho = epsilon;
+
+  rho_dot = (px * vx + py * vy) / rho;
+
+  VectorXd h_x = VectorXd(3);
+  h_x << rho, phi, rho_dot;
+
+  return h_x;
 }
