@@ -15,8 +15,8 @@ This repository includes two files that can be used to set up and install [uWebS
 ## Run the project
 Once the install for uWebSocketIO is complete, the main program can be built and run by doing the following from the project top directory.
 
-1. mkdir build && cd build
-2. cmake .. && make
-3. ./ExtendedKF
+    1. mkdir build && cd build
+    2. cmake .. && make
+    3. ./ExtendedKF
 
 Then open the simulator and click on start.
