@@ -82,7 +82,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       * Remember: you'll need to convert radar from polar to cartesian coordinates.
     */
     // first measurement
-    cout << "EKF: " << endl;
+    // cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
 
@@ -91,7 +91,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       Convert radar from polar to cartesian coordinates and initialize state.
       */
       // Use std::polar to constructs a complex number from magnitude and phase angle
-      cout << "RADAR " << endl;
       float rho = measurement_pack.raw_measurements_[0];
       float phi = measurement_pack.raw_measurements_[1];
       float rho_dot = measurement_pack.raw_measurements_[2];
@@ -147,15 +146,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       			   dt_3/2*noise_ax,  0,               dt_2*noise_ax,   0,
       			   0,                dt_3/2*noise_ay, 0,               dt_2*noise_ay;
 
-
-  // cout << "Q_" << endl << ekf_.Q_ <<endl;
-
   ekf_.Predict();
 
-  cout << endl << "********" << endl;
-  cout << "After prediction" << endl;
-  cout << "x_ = " << ekf_.x_ << endl;
-  // cout << "P_ = " << ekf_.P_ << endl;
 
   /*****************************************************************************
    *  Update
@@ -169,22 +161,18 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates
-    cout << "** RADAR **" << endl;
-    // Radar updates
     Tools tools;
     ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
     ekf_.R_ = R_radar_;
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
   } else {
     // Lidar updates
-    cout << "** LIDAR **" << endl;
     ekf_.H_ = H_laser_;
 	  ekf_.R_ = R_laser_;
     ekf_.Update(measurement_pack.raw_measurements_);
   }
 
   // print the output
-  cout << "After Update" << endl;
-  cout << "x_ = " << ekf_.x_ << endl;
+  // cout << "x_ = " << ekf_.x_ << endl;
   // cout << "P_ = " << ekf_.P_ << endl;
 }

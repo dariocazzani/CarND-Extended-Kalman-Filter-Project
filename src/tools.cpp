@@ -5,8 +5,6 @@ using Eigen::VectorXd;
 using Eigen::MatrixXd;
 using std::vector;
 
-const float PI2 = 2 * M_PI;
-
 Tools::Tools() {}
 
 Tools::~Tools() {}
@@ -113,4 +111,13 @@ VectorXd Tools::Convert2Polar(const VectorXd& x_state) {
   h_x << rho, phi, rho_dot;
 
   return h_x;
+}
+
+void Tools::constrainAngle(double &x)
+{
+  while(x < - M_PI)
+    x += M_PI;
+  while(x > M_PI)
+    x -= M_PI;
+  // return x;
 }
