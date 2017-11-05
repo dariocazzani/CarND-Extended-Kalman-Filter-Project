@@ -23,6 +23,13 @@ Then open the simulator and click on start.
 
 ## Results
 
+### Final RMSE Values:
+
+        rmse_x:  0.0973178
+        rmse_y:  0.0854597
+        rmse_vx: 0.451267
+        rmse_vx: 0.439935
+
 ![](images/Finished_loop.png) 
 
 ## Workflow
