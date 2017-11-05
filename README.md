@@ -20,3 +20,27 @@ Once the install for uWebSocketIO is complete, the main program can be built and
     3. ./ExtendedKF
 
 Then open the simulator and click on start.
+
+## Results
+
+![](images/Finished_loop.png) 
+
+## Workflow
+
+![](images/Workflow.png) 
+
+1. The pedestrian's state is represented by a 2D position and 2D velocity vector: `x --> [Px, Py, Vx, Vy]`
+
+2. Every time we receive a new measurement from either sensor, the process measurement function is triggered
+
+3. At the first iteration we just need to initialize the state and covariance matrices
+
+4. Call the `prediction` and `measurement` update
+
+5. Before the prediction, we need to compute the elapsed time between the current measurement and the previous one, so that we can calculate the new state transition and process covariance matrices.
+
+6. The measurement update step depende on the sensor type:
+        
+        1. Radar: We need to compute the new Jacobian Hj, use the non-inear measurement function to project the predicted state and then call the measurement update
+
+        2. Lidar: We just need to set up the Extended Kalman Filter with the Laser H and R matrices. Then call the measurement update
