@@ -119,5 +119,4 @@ void Tools::constrainAngle(double &x)
     x += M_PI;
   while(x > M_PI)
     x -= M_PI;
-  // return x;
 }

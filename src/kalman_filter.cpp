@@ -25,7 +25,7 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 void KalmanFilter::estimate(const VectorXd &y)
 {
   /**
-  This operations are the same for the Udpate for KF and EKF
+  These operations are the same for the Udpate for KF and EKF
   once the Matrices H and R are correctly initialized
   */
   // Same as in the function of KalmanFilter::Update()
