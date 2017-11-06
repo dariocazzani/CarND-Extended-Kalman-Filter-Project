@@ -15,12 +15,12 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   TODO:
     * Calculate the RMSE here.
   */
-  VectorXd rmse(4);
-	rmse << 0,0,0,0;
 
 	// check the validity of the following inputs:
 	//  * the estimation vector size should not be zero
 	//  * the estimation vector size should equal ground truth vector size
+  VectorXd rmse(4);
+  rmse << 0, 0, 0, 0;
 	if(estimations.size() != ground_truth.size()
 			|| estimations.size() == 0){
 		cout << "Invalid estimation or ground_truth data" << endl;
@@ -57,17 +57,17 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
         0,0,0,0,
         0,0,0,0;
 	//recover state parameters
-	float px = x_state(0);
-	float py = x_state(1);
-	float vx = x_state(2);
-	float vy = x_state(3);
+	px = x_state(0);
+	py = x_state(1);
+	vx = x_state(2);
+	vy = x_state(3);
 
 	float c1 = pow(px, 2.) + pow(py, 2.);
 	float c2 = sqrt(c1);
 	float c3 = pow(c1, 3./2.);
 
 	//check division by zero
-  if(fabs(c1) < 0.0001)
+  if(fabs(c1) < epsilon)
   {
     std::cout << "CalculateJacobian() has an error: Division by Zero" << std::endl;
     return Hj;
@@ -91,17 +91,20 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 }
 
 VectorXd Tools::Convert2Polar(const VectorXd& x_state) {
-  float px = x_state(0);
-  float py = x_state(1);
-  float vx = x_state(2);
-  float vy = x_state(3);
+  px = x_state(0);
+	py = x_state(1);
+	vx = x_state(2);
+	vy = x_state(3);
 
-  float rho, phi, rho_dot;
   rho = sqrt(px*px + py*py);
+  // atan2 is undefined when both py and px are zeros
+  if(fabs(px) < epsilon && fabs(py) < epsilon)
+  {
+    px = py = epsilon;
+  }
   phi = atan2(py, px);  // returns values between -pi and pi
 
   // avoid division by 0t
-  double epsilon = 0.000001;
   if(rho < epsilon)
     rho = epsilon;
 
@@ -111,12 +114,4 @@ VectorXd Tools::Convert2Polar(const VectorXd& x_state) {
   h_x << rho, phi, rho_dot;
 
   return h_x;
-}
-
-void Tools::constrainAngle(double &x)
-{
-  while(x < - M_PI)
-    x += M_PI;
-  while(x > M_PI)
-    x -= M_PI;
 }

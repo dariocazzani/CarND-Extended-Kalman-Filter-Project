@@ -45,9 +45,15 @@ private:
   Eigen::MatrixXd H_laser_;
   Eigen::MatrixXd Hj_;
 
-  //set the acceleration noise components
+  //the acceleration noise components
   float noise_ax;
   float noise_ay;
+
+  // delta time
+  float dt;
+
+  // minimum delta time
+  constexpr static float min_dt = 0.0001;
 };
 
 #endif /* FusionEKF_H_ */

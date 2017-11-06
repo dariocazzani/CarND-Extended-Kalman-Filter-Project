@@ -11,17 +11,6 @@ KalmanFilter::KalmanFilter() {}
 
 KalmanFilter::~KalmanFilter() {}
 
-void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
-                        MatrixXd &H_in, MatrixXd &R_in, MatrixXd &Q_in) {
-  x_ = x_in;
-  P_ = P_in;
-  F_ = F_in;
-  H_ = H_in;
-  R_ = R_in;
-  Q_ = Q_in;
-
-}
-
 void KalmanFilter::estimate(const VectorXd &y)
 {
   /**
@@ -81,7 +70,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z)
   VectorXd y = z - h_x;
 
   // Normalize angle between -pi and pi
-  tools.constrainAngle(y(1));
+  y(1) = atan2(sin(y(1)), cos(y(1)));
 
   estimate(y);
 }

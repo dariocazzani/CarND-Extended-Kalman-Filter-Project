@@ -57,6 +57,10 @@ FusionEKF::FusionEKF() {
             0, 0, 1, 0,
             0, 0, 0, 1;
 
+  ekf_.x_ = VectorXd(4);
+  ekf_.x_ << 1, 1, 1, 1;
+
+
   //set the acceleration noise components
   noise_ax = 9;
   noise_ay = 9;
@@ -82,9 +86,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       * Remember: you'll need to convert radar from polar to cartesian coordinates.
     */
     // first measurement
-    // cout << "EKF: " << endl;
-    ekf_.x_ = VectorXd(4);
-    ekf_.x_ << 1, 1, 1, 1;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
@@ -95,7 +96,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float phi = measurement_pack.raw_measurements_[1];
       float rho_dot = measurement_pack.raw_measurements_[2];
 
-      ekf_.x_ << rho * cos(phi), rho * sin(phi),0, 0;  // x, y, vx, vy
+      ekf_.x_ << rho * cos(phi), rho * sin(phi), 0, 0;  // x, y, vx, vy
     }
 
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
@@ -128,25 +129,30 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
 
    //compute the time elapsed between the current and previous measurements
- 	float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;	//dt - expressed in seconds
+ 	dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;	//dt - expressed in seconds
  	previous_timestamp_ = measurement_pack.timestamp_;
 
-  float dt_2 = dt * dt;
-	float dt_3 = dt_2 * dt;
-	float dt_4 = dt_3 * dt;
+  // Skip prediction is measurements came right after the previous one
+  // More efficient but a bit less precise
+  if(dt > min_dt)
+  {
+    float dt_2 = dt * dt;
+  	float dt_3 = dt_2 * dt;
+  	float dt_4 = dt_3 * dt;
 
-	//Modify the F matrix so that the time is integrated
-	ekf_.F_(0, 2) = dt;
-	ekf_.F_(1, 3) = dt;
+  	//Modify the F matrix so that the time is integrated
+  	ekf_.F_(0, 2) = dt;
+  	ekf_.F_(1, 3) = dt;
 
-	//set the process covariance matrix Q
-	ekf_.Q_ = MatrixXd(4, 4);
-	ekf_.Q_ <<   dt_4/4*noise_ax,  0,               dt_3/2*noise_ax, 0,
-      			   0,                dt_4/4*noise_ay, 0,               dt_3/2*noise_ay,
-      			   dt_3/2*noise_ax,  0,               dt_2*noise_ax,   0,
-      			   0,                dt_3/2*noise_ay, 0,               dt_2*noise_ay;
+  	//set the process covariance matrix Q
+  	ekf_.Q_ = MatrixXd(4, 4);
+  	ekf_.Q_ <<   dt_4/4*noise_ax,  0,               dt_3/2*noise_ax, 0,
+        			   0,                dt_4/4*noise_ay, 0,               dt_3/2*noise_ay,
+        			   dt_3/2*noise_ax,  0,               dt_2*noise_ax,   0,
+        			   0,                dt_3/2*noise_ay, 0,               dt_2*noise_ay;
 
-  ekf_.Predict();
+    ekf_.Predict();
+  }
 
 
   /*****************************************************************************
@@ -171,8 +177,4 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 	  ekf_.R_ = R_laser_;
     ekf_.Update(measurement_pack.raw_measurements_);
   }
-
-  // print the output
-  // cout << "x_ = " << ekf_.x_ << endl;
-  // cout << "P_ = " << ekf_.P_ << endl;
 }

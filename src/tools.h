@@ -34,11 +34,11 @@ public:
   */
   VectorXd Convert2Polar(const VectorXd& x_state);
 
-  /**
-  * A helper method to normalize and angle between -pi and pi.
-  */
-  void constrainAngle(double &x);
 
+private:
+  constexpr static float epsilon = 0.00001;
+  float px, py, vx, vy = 0.0f;
+  float rho, phi, rho_dot = 0.0f;
 
 };
 
